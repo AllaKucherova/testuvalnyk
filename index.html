@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Тестувальник міста Суми 2035</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#fff4e0;--card:#fff;--text:#14213d;--muted:#52607a;--code:#14213d;--codetext:#ffe66d;--box:#eef3ff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#14102b;--card:#231b45;--text:#f3f0ff;--muted:#bdb5e0;--code:#0b0820;--box:#2d2457}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#14102b;--card:#231b45;--text:#f3f0ff;--muted:#bdb5e0;--code:#0b0820;--box:#2d2457}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Trebuchet MS",Verdana,Arial,sans-serif}
+.wrap{max-width:720px;margin:0 auto;padding:16px}
+header{background:linear-gradient(135deg,#ff6b35,#e91e8c);color:#fff;border-radius:20px;padding:18px 20px;text-align:center}
+header h1{margin:0;font-size:clamp(22px,5vw,32px)}
+header p{margin:6px 0 0;font-size:16px}
+.bar{display:flex;justify-content:space-between;gap:10px;margin:14px 0;font-weight:700;font-size:18px}
+.pill{background:var(--card);border-radius:14px;padding:10px 16px;border:3px solid #7c4dff}
+.pill.s{border-color:#ff6b35}
+.card{background:var(--card);border-radius:20px;padding:20px;box-shadow:0 6px 0 rgba(0,0,0,.12)}
+.theme{display:inline-block;background:#7c4dff;color:#fff;border-radius:12px;padding:6px 14px;font-weight:700;font-size:18px}
+.req{background:var(--box);border-left:8px solid #00a6a6;border-radius:12px;padding:12px 14px;font-size:18px;line-height:1.45;margin:14px 0}
+pre{background:var(--code);color:var(--codetext);border-radius:14px;padding:16px;font-size:clamp(14px,3.6vw,19px);line-height:1.5;overflow-x:auto;margin:0 0 12px;font-family:Consolas,"Courier New",monospace}
+.q{font-size:19px;font-weight:700;margin:14px 0 10px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{font:inherit}
+.opts button{font-size:22px;font-weight:700;padding:16px 10px;border:none;border-radius:16px;color:#fff;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.25);min-height:68px;background:#1e88e5}
+.opts button:nth-child(2){background:#7c4dff}
+.opts button:nth-child(3){background:#00a6a6}
+.opts button:nth-child(4){background:#e8590c}
+.opts button.ok{grid-column:1/-1;background:#d6336c;font-size:20px}
+.opts button:active:not(:disabled){transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.opts button:disabled{cursor:default;opacity:.5}
+.opts button.right{opacity:1;background:#2bb673!important}
+.opts button.wrong{opacity:1;background:#e63946!important}
+.fb{display:none;margin-top:16px;border-radius:14px;padding:14px 16px;font-size:18px;line-height:1.45}
+.fb.good{display:block;background:#d9f7e8;color:#0b4a2b;border:3px solid #2bb673}
+.fb.bad{display:block;background:#ffe0e3;color:#6d0f19;border:3px solid #e63946}
+.fb b.t{display:block;font-size:22px;margin-bottom:4px}
+.trace{margin-top:14px;background:var(--box);border-radius:14px;padding:14px 16px;font-size:17px;line-height:1.5}
+.trace h4{margin:0 0 6px;font-size:18px}
+.trace ol{margin:0;padding-left:22px}
+.trace li{margin:3px 0}
+.trace .res{margin-top:8px;font-weight:700}
+.tag{font-family:Consolas,monospace;font-weight:700;padding:1px 8px;border-radius:8px;background:#14213d;color:#ffe66d}
+.bug{margin-top:14px;border:3px dashed #e8590c;border-radius:14px;padding:12px 16px;font-size:18px;line-height:1.45}
+.next{display:none;margin-top:14px;width:100%;font-size:21px;font-weight:700;padding:18px;border:none;border-radius:16px;background:#1e88e5;color:#fff;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.25);min-height:64px}
+.end{text-align:center}
+.end .big{font-size:56px;font-weight:800;color:#ff6b35}
+.end h2{font-size:28px;margin:8px 0}
+.end p{font-size:19px;line-height:1.5}
+.end ul{text-align:left;font-size:18px;line-height:1.5;padding-left:22px}
+progress{width:100%;height:14px;margin-top:14px;accent-color:#2bb673}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>Тестувальник міста Суми 2035</h1><p>Знайди значення, на якому код міської програми помилиться</p></header>
+<div class="bar"><div class="pill">Раунд <span id="rn">1</span> з 6</div><div class="pill s">Бали: <span id="sc">0</span></div></div>
+<div class="card" id="game"></div>
+</div>
+<script>
+const R=[
+{th:"Паркінг",v:"hours",vals:[1,2,3,5],unit:"год",
+req:"До 1 години включно паркінг безкоштовний, до 3 годин включно коштує 20 грн, далі 50 грн.",
+s:[{t:"hours <= 1",o:"0 грн"},{t:"hours <= 3",o:"20 грн"},{o:"50 грн"}],
+c:[{t:"hours < 1",o:"0 грн"},{t:"hours <= 3",o:"20 грн"},{o:"50 грн"}],
+type:"border",bug:"В першій умові стоїть hours < 1 замість hours <= 1. Через це рівно 1 година потрапляє в наступну гілку й коштує 20 грн."},
+{th:"Посилки",v:"weight",vals:[2,5,10,12],unit:"кг",
+req:"Посилка до 2 кг включно коштує 50 грн, до 10 кг включно 90 грн, важча за 10 кг коштує 150 грн.",
+s:[{t:"weight <= 2",o:"50 грн"},{t:"weight <= 10",o:"90 грн"},{o:"150 грн"}],type:"ok"},
+{th:"Ліхтарі",v:"light",vals:[10,35,50,80],unit:"",
+req:"Якщо освітленість менша за 20, ліхтарі світять на повну. Якщо менша за 50, на половину. Інакше вони вимкнені.",
+s:[{t:"light < 20",o:"Повна яскравість"},{t:"light < 50",o:"Половина яскравості"},{o:"Вимкнено"}],
+c:[{t:"light < 50",o:"Половина яскравості"},{t:"light < 20",o:"Повна яскравість"},{o:"Вимкнено"}],
+type:"order",bug:"Умови стоять у неправильному порядку. Перевірка light < 50 іде першою й перехоплює всі малі значення, тому умова light < 20 ніколи не виконується. Спершу потрібно перевіряти вужчу умову."},
+{th:"Швидкість у зоні",v:"speed",vals:[25,30,35,45],unit:"км/год",
+req:"Швидкість до 30 км/год включно: «Швидкість у нормі». Від 31 до 40 включно: «Попередження». Понад 40: «Штраф».",
+s:[{t:"speed <= 30",o:"Швидкість у нормі"},{t:"speed <= 40",o:"Попередження"},{o:"Штраф"}],
+c:[{t:"speed <= 30",o:"Швидкість у нормі"},{t:"speed > 40",o:"Штраф"}],
+type:"missing",bug:"Немає гілки для діапазону 31–40 км/год. Жодна умова в таких випадках не спрацьовує, а else відсутній, тому програма нічого не виводить. Потрібна гілка elif speed <= 40 з попередженням."},
+{th:"Якість повітря",v:"pm",vals:[25,26,50,51],unit:"",
+req:"Забруднення pm до 25 включно: «Добре». До 50 включно: «Помірно». Понад 50: «Погано».",
+s:[{t:"pm <= 25",o:"Добре"},{t:"pm <= 50",o:"Помірно"},{o:"Погано"}],type:"ok"},
+{th:"Тариф зарядки",v:"minutes",vals:[29,30,60,90],unit:"хв",
+req:"Зарядка менше 30 хвилин коштує 100 грн, менше 60 хвилин коштує 180 грн, від 60 хвилин коштує 250 грн.",
+s:[{t:"minutes < 30",o:"100 грн"},{t:"minutes < 60",o:"180 грн"},{o:"250 грн"}],
+c:[{t:"minutes < 30",o:"100 грн"},{t:"minutes <= 60",o:"180 грн"},{o:"250 грн"}],
+type:"border",bug:"У другій умові стоїть minutes <= 60 замість minutes < 60. Рівно 60 хвилин мають коштувати 250 грн, а код видає 180 грн."}
+];
+const TIPS={border:"Перевіряй межові значення: числа, на яких змінюється гілка. Саме там знаки < і <= дають різний результат.",
+order:"В ланцюжку if-elif-else умови перевіряються зверху вниз, і працює перша, що True. Вужчі умови ставлять раніше за ширші.",
+missing:"Перевір, що кожне можливе значення потрапляє в якусь гілку. Якщо else немає, діапазон без умови залишиться без відповіді.",
+ok:"Код без помилок теж трапляється. Перш ніж оголошувати помилку, перевір усі межові значення й переконайся, що результат збігається з вимогою."};
+let i=0,score=0,missed=[];
+const g=document.getElementById("game");
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const ev=(r,t,x)=>new Function(r.v,"return "+t)(x);
+function run(r,br,x){
+  const st=[`Підставляю ${r.v} = ${x}.`];
+  for(let k=0;k<br.length;k++){
+    const b=br[k];
+    if(!b.t){st.push(`Умов більше немає, виконується <span class="tag">else</span>.`);return{out:b.o,st,line:`print("${b.o}")`};}
+    const val=ev(r,b.t,x);
+    st.push(`Перевіряю <span class="tag">${b.t}</span>: ${val?"True":"False"}.`+(val?` Виконується print("${esc(b.o)}").`:""));
+    if(val)return{out:b.o,st};
+  }
+  st.push("Жодна умова не спрацювала, а гілки else немає, тому програма нічого не виводить.");
+  return{out:null,st};
+}
+const codeOf=br=>br.map((b,k)=>(b.t?(k?"elif ":"if ")+b.t+":":"else:")+`\n    print("${b.o}")`).join("\n");
+const show_o=o=>o===null?"нічого не виведено":esc(o);
+const code=r=>r.c||r.s;
+const buggy=r=>r.type!=="ok";
+const reveals=(r,x)=>run(r,r.s,x).out!==run(r,code(r),x).out;
+function traceHTML(r,x){
+  const a=run(r,code(r),x),e=run(r,r.s,x);
+  const same=a.out===e.out;
+  return `<div class="trace"><h4>Трасування для ${r.v} = ${x}</h4><ol>${a.st.slice(1).map(s=>`<li>${s}</li>`).join("")}</ol>
+  <div class="res">Вимога дає: ${show_o(e.out)}. Код вивів: ${show_o(a.out)}. ${same?"Результати збігаються.":"Результати відрізняються, це помилка."}</div></div>`;
+}
+function show(){
+  const r=R[i];
+  document.getElementById("rn").textContent=i+1;
+  g.className="card";
+  g.innerHTML=`<span class="theme">${r.th}</span>
+  <div class="req"><b>Вимога:</b> ${r.req}</div>
+  <pre>${esc(code(r)===r.s&&!r.c?codeOf(r.s):codeOf(r.c))}</pre>
+  <div class="q">Яке значення покаже помилку в коді?</div>
+  <div class="opts">${r.vals.map((x,k)=>`<button data-k="${k}">${r.v} = ${x}</button>`).join("")}<button class="ok" data-k="ok">Код правильний</button></div>
+  <div id="after"></div>
+  <button class="next" id="nx">${i<5?"Далі":"Показати результат"}</button>
+  <progress max="6" value="${i}"></progress>`;
+  g.querySelectorAll(".opts button").forEach(b=>b.onclick=()=>answer(b.dataset.k));
+  document.getElementById("nx").onclick=()=>{i++;i<6?show():finish();window.scrollTo(0,0)};
+}
+function answer(k){
+  const r=R[i],bs=[...g.querySelectorAll(".opts button")];
+  let good,msg,tr="",x;
+  if(k==="ok"){
+    good=!buggy(r);
+    if(good){msg="Так, код відповідає вимозі на всіх значеннях.";tr=r.vals.map(v=>traceHTML(r,v)).join("");}
+    else{x=r.vals.find(v=>reveals(r,v));msg=`У цьому коді є помилка. Наприклад, її показує ${r.v} = ${x}.`;tr=traceHTML(r,x);}
+  }else{
+    x=r.vals[+k];
+    if(!buggy(r)){good=false;msg="У цьому раунді код правильний, тож жодне значення помилки не покаже.";}
+    else if(reveals(r,x)){good=true;msg=`На значенні ${r.v} = ${x} код виводить не те, що вимагає завдання.`;}
+    else{good=false;msg=`На значенні ${r.v} = ${x} код працює правильно, помилку воно не показує.`;}
+    tr=traceHTML(r,x);
+    if(buggy(r)&&!good){const y=r.vals.find(v=>reveals(r,v));tr+=`<div class="trace"><b>Помилку показує, наприклад, ${r.v} = ${y}.</b></div>`;}
+  }
+  if(good)score+=10;else missed.push(r.type);
+  document.getElementById("sc").textContent=score;
+  bs.forEach((b,n)=>{b.disabled=true;
+    if(buggy(r)?(b.dataset.k!=="ok"&&reveals(r,r.vals[+b.dataset.k])):b.dataset.k==="ok")b.classList.add("right");
+    else if(b.dataset.k===String(k))b.classList.add("wrong");});
+  const bug=buggy(r)?`<div class="bug"><b>Помилка в коді:</b> ${r.bug}</div>`:"";
+  document.getElementById("after").innerHTML=`<div class="fb ${good?"good":"bad"}"><b class="t">${good?"Правильно! +10 балів":"Не зовсім"}</b>${msg}</div>${tr}${bug}`;
+  const nx=document.getElementById("nx");nx.style.display="block";
+  document.getElementById("after").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function finish(){
+  document.getElementById("rn").textContent=6;
+  let h;
+  if(score===60)h="Головний тестувальник міста";
+  else if(score>=40)h="Досвідчений тестувальник";
+  else if(score>=20)h="Тестувальник-практикант";
+  else h="Початківець у тестуванні";
+  const ty=[...new Set(missed)];
+  const tips=ty.length?ty.map(t=>TIPS[t]):["Усі помилки знайдено, і правильний код не викликав зайвих підозр. Так тримати."];
+  g.className="card end";
+  g.innerHTML=`<div class="big">${score} / 60</div><h2>${h}</h2>
+  <p>${ty.length?"Поради за результатами гри:":"Чудовий результат."}</p><ul>${tips.map(t=>`<li>${t}</li>`).join("")}</ul>
+  <button class="next" style="display:block" id="rs">Грати ще раз</button>`;
+  document.getElementById("rs").onclick=()=>{i=0;score=0;missed=[];document.getElementById("sc").textContent=0;show()};
+}
+show();
+</script>
+</body>
+</html>
